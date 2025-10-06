@@ -60,7 +60,7 @@ type WeatherDetails struct {
 }
 
 func GetWeatherByCity(city string) (map[string]string, error) {
-	var apiKey string = "fd398472bcdd48508f4790d178dd82eb"
+	var apiKey string = ""
 	var baseUrl string = "https://api.weatherbit.io"
 
 	url := fmt.Sprintf("%s/v2.0/current?city=%s&key=%s", baseUrl, city, apiKey)

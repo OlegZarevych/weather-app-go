@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	openweather "weather-app-go/internal/openweather"
+	genericWeatherHandler "weather-app-go/internal/WeatherHandler"
+	weatherBitHandler "weather-app-go/internal/Weatherbit"
 )
 
 func weatherHandler(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +17,8 @@ func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, message)
 	log.Printf("Received request for city: %s", city)
-	weatherMap, err := openweather.GetWeatherByCity(city)
+	var weatherService genericWeatherHandler.WeatherHandler = weatherBitHandler.WeatherbitHandler{}
+	weatherMap, err := weatherService.GetWeatherByCity(city)
 	if err != nil {
 		log.Printf("Error fetching weather data: %v", err)
 		http.Error(w, "Failed to fetch weather data", http.StatusInternalServerError)

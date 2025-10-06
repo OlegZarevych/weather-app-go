@@ -5,15 +5,27 @@ import (
 	"log"
 	"net/http"
 	"os"
+	openweather "weather-app-go/internal/openweather"
 )
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	message := "This HTTP triggered function executed successfully. Pass a name in the query string for a personalized response.\n"
-	name := r.URL.Query().Get("name")
-	if name != "" {
-		message = fmt.Sprintf("Hello, %s. This HTTP triggered function executed successfully.\n", name)
+func weatherHandler(w http.ResponseWriter, r *http.Request) {
+	message := "This HTTP triggered function executed successfully. Pass a city in the query string for a personalized response.\n"
+	city := r.URL.Query().Get("city")
+	if city != "" {
+		message = fmt.Sprintf("Hello, %s. This HTTP triggered function executed successfully.\n", city)
 	}
 	fmt.Fprint(w, message)
+	log.Printf("Received request for city: %s", city)
+	weatherMap, err := openweather.GetWeatherByCity(city)
+	if err != nil {
+		log.Printf("Error fetching weather data: %v", err)
+		http.Error(w, "Failed to fetch weather data", http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, "Weather data for %s:\n", city)
+	for k, v := range weatherMap {
+		fmt.Fprintf(w, "%s: %s\n", k, v)
+	}
 }
 
 func main() {
@@ -21,11 +33,7 @@ func main() {
 	if val, ok := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT"); ok {
 		listenAddr = ":" + val
 	}
-	http.HandleFunc("/api/Weather", helloHandler)
+	http.HandleFunc("/api/Weather", weatherHandler)
 	log.Printf("About to listen on %s. Go to https://127.0.0.1%s/", listenAddr, listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
-}
-
-func getWeatherByName() {
-
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	mediator "weather-app-go/internal/Mediator"
 	genericWeatherHandler "weather-app-go/internal/WeatherHandler"
 	weatherBitHandler "weather-app-go/internal/Weatherbit"
 )
@@ -17,8 +18,11 @@ func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, message)
 	log.Printf("Received request for city: %s", city)
+
 	var weatherService genericWeatherHandler.WeatherHandler = weatherBitHandler.WeatherbitHandler{}
-	weatherMap, err := weatherService.GetWeatherByCity(city)
+	var mediator mediator.Mediator = mediator.NewWeatherMediator(weatherService)
+	weatherMap, err := mediator.DoWeatherMagic(city)
+
 	if err != nil {
 		log.Printf("Error fetching weather data: %v", err)
 		http.Error(w, "Failed to fetch weather data", http.StatusInternalServerError)

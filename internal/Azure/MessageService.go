@@ -23,8 +23,12 @@ func NewMessageService() MessageService {
 		client:    client,
 	}
 }
-
 func (m *MessageService) SendWeatherMessage(weatherData map[string]string) {
+	log.Println("Preparing to send weather message...")
+	go m.sendWeatherMessage(weatherData)
+}
+
+func (m *MessageService) sendWeatherMessage(weatherData map[string]string) {
 
 	var temp string = weatherData["temp"]
 	log.Printf("Sending weather message with temp: %s", temp)

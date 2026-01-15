@@ -9,8 +9,9 @@ import (
 )
 
 type MessageService struct {
-	queueName string
-	client    *azservicebus.Client
+	queueName   string
+	client      *azservicebus.Client
+	messageChan chan map[string]string
 }
 
 func NewMessageService() MessageService {
@@ -18,14 +19,24 @@ func NewMessageService() MessageService {
 	if err != nil {
 		log.Fatalf("failed to create client: %v", err)
 	}
-	return MessageService{
-		queueName: "weather-queue",
-		client:    client,
+	ms := MessageService{
+		queueName:   "weather-queue",
+		client:      client,
+		messageChan: make(chan map[string]string, 10), // buffered channel because capacity is 10
 	}
+	// start a background goroutine to process messages
+	go func() {
+		for data := range ms.messageChan {
+			ms.sendWeatherMessage(data)
+		}
+	}()
+	return ms
 }
 func (m *MessageService) SendWeatherMessage(weatherData map[string]string) {
 	log.Println("Preparing to send weather message...")
-	go m.sendWeatherMessage(weatherData)
+	// Instead of spawning a new goroutine per call, it now sends the weatherData to the channel
+	//  is non-blocking (due to the buffered channel)
+	m.messageChan <- weatherData
 }
 
 func (m *MessageService) sendWeatherMessage(weatherData map[string]string) {

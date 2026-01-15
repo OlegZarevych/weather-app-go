@@ -10,10 +10,10 @@ type WeatherMediator struct {
 	messageService az.MessageService
 }
 
-func NewWeatherMediator(handler wh.WeatherHandler) *WeatherMediator {
+func NewWeatherMediator(handler wh.WeatherHandler, messageService az.MessageService) *WeatherMediator {
 	return &WeatherMediator{
 		weatherHandler: handler,
-		messageService: az.NewMessageService(),
+		messageService: messageService,
 	}
 }
 

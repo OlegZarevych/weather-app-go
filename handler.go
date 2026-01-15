@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	az "weather-app-go/internal/Azure"
 	mediator "weather-app-go/internal/Mediator"
 	genericWeatherHandler "weather-app-go/internal/WeatherHandler"
 	weatherBitHandler "weather-app-go/internal/Weatherbit"
@@ -12,6 +13,7 @@ import (
 
 func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	message := "This HTTP triggered function executed successfully. Pass a city in the query string for a personalized response.\n"
+
 	city := r.URL.Query().Get("city")
 	if city != "" {
 		message = fmt.Sprintf("Hello, %s. This HTTP triggered function executed successfully.\n", city)
@@ -20,7 +22,8 @@ func weatherHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Received request for city: %s", city)
 
 	var weatherService genericWeatherHandler.WeatherHandler = weatherBitHandler.WeatherbitHandler{}
-	var mediator mediator.Mediator = mediator.NewWeatherMediator(weatherService)
+	var messageService az.MessageService = az.NewMessageService()
+	var mediator mediator.Mediator = mediator.NewWeatherMediator(weatherService, messageService)
 	weatherMap, err := mediator.DoWeatherMagic(city)
 
 	if err != nil {
@@ -28,6 +31,7 @@ func weatherHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to fetch weather data", http.StatusInternalServerError)
 		return
 	}
+
 	fmt.Fprintf(w, "Weather data for %s:\n", city)
 	for k, v := range weatherMap {
 		fmt.Fprintf(w, "%s: %s\n", k, v)

@@ -10,26 +10,29 @@ import (
 type WeatherbitHandler struct{}
 
 func (h WeatherbitHandler) GetWeatherByCity(city string) (map[string]string, error) {
+
 	var apiKey string = ""
 	var baseUrl string = "https://api.weatherbit.io"
-
 	url := fmt.Sprintf("%s/v2.0/current?city=%s&key=%s", baseUrl, city, apiKey)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("Error fetching weather data: %v", err)
 		return nil, err
 	}
+
 	var weather *WeatherBitResponse
 	weather, err = parseWeatherResponse(resp)
 	if err != nil {
 		log.Printf("Error parsing weather data: %v", err)
 		return nil, err
 	}
+
 	weatherMap, err := transformWeatherResponse(weather)
 	if err != nil {
 		log.Printf("Error transforming weather data: %v", err)
 		return nil, err
 	}
+
 	return weatherMap, nil
 }
 

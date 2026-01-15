@@ -58,7 +58,6 @@ func getConnectionString() string {
 		log.Println("⚠ env var SB_CONNECTION_STRING not set")
 		value = "default-value"
 	}
-
 	log.Println("Env value:", value)
 	return value
 }
